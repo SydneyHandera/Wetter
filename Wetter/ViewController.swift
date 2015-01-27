@@ -10,6 +10,15 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    @IBAction func refreshAction(sender: UIButton) {
+        print("Button wurde gedrückt")
+    }
+    @IBOutlet weak var lblReload: UIButton!
+    @IBOutlet weak var lblGrad: UILabel!
+    @IBOutlet weak var lblSunny: UILabel!
+    @IBOutlet weak var lblStadt: UILabel!
+    @IBOutlet weak var lblHumidity: UILabel!
+    @IBOutlet weak var lblPressure: UILabel!
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
