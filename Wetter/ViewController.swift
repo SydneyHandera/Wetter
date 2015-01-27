@@ -22,7 +22,7 @@ class ViewController: UIViewController {
         
         
         //http://api.openweathermap.org/data/2.5/weather?q=darmstadt
-        let url = NSURL(string: "http://api.openweathermap.org/data/2.5/weather?q=darmstadt")!
+        let url = NSURL(string: "http://api.openweathermap.org/data/2.5/weather?q=berlin")!
         let request = NSURLRequest(URL: url)
         let config =  NSURLSessionConfiguration.defaultSessionConfiguration()
         
@@ -31,9 +31,17 @@ class ViewController: UIViewController {
         session.dataTaskWithRequest(request, completionHandler: {
             (data, response, error) -> Void in
             
-            println(data)
-            println(response)
-            println(error)
+            if error != nil {
+                println(error)
+                return
+            }
+            var errorPointer:NSError?
+            let readingOptions = NSJSONReadingOptions.AllowFragments
+            let parsedJSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: readingOptions, error: &errorPointer)
+            
+            
+            println(parsedJSON)
+            
             
         }).resume()
        
