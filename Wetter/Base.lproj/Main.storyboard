@@ -128,12 +128,13 @@
                         </variation>
                     </view>
                     <connections>
+                        <outlet property="btnReload" destination="o4G-7D-kKd" id="8J8-hN-J6o"/>
                         <outlet property="lblGrad" destination="uAK-Vr-sgz" id="waV-ta-oBw"/>
                         <outlet property="lblHumidity" destination="a4F-Am-TaR" id="2Xz-SE-uhS"/>
                         <outlet property="lblPressure" destination="Lck-pf-x59" id="mhN-4G-WN6"/>
-                        <outlet property="lblReload" destination="o4G-7D-kKd" id="c5o-4i-CLg"/>
                         <outlet property="lblStadt" destination="AYY-vt-GCA" id="rfc-KE-2Q1"/>
                         <outlet property="lblSunny" destination="Zdd-O1-0EC" id="U4a-s9-oEh"/>
+                        <outlet property="viewRedHelper" destination="x1L-S3-AYy" id="oAL-53-LzA"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>

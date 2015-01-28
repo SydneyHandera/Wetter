@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  Wetter
 //
-//  Created by Dirk Handera on 27.01.15.
+//  Created by Sydney Handera on 27.01.15.
 //  Copyright (c) 2015 Sydney Handera. All rights reserved.
 //
 
