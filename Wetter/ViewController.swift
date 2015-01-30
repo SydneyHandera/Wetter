@@ -18,133 +18,231 @@ class ViewController: UIViewController {
     @IBOutlet weak var lblStadt: UILabel!
     @IBOutlet weak var lblHumidity: UILabel!
     @IBOutlet weak var lblPressure: UILabel!
+    @IBOutlet weak var btnVorschau: UIButton!
     
-    @IBAction func refreshAction(sender: UIButton) {
-        println("Button wurde gedrückt")
-        fetchDataFromOpenweather()
+    
+    @IBOutlet weak var actGrad: UIActivityIndicatorView!
+    @IBAction func vorschauAction (sender: UIButton){
+        println("Vorschau wurde gedrückt")
+        fetchGanzerTag()
     }
     
     
-    func fetchDataFromOpenweather(){
-        //http://api.openweathermap.org/data/2.5/weather?q=darmstadt
-        let url = NSURL(string: "http://api.openweathermap.org/data/2.5/weather?q=berlin")!
+    @IBAction func refreshAction(sender: UIButton) {
+        println("Button wurde gedrückt")
+        self.actGrad.hidden = false
+        fetchDataFromOpenWeather()
+    }
+    
+    
+    func fetchGanzerTag(){
+        //api.openweathermap.org/data/2.5/forecast?lat=35&lon=139
+        let url = NSURL(string: "http://api.openweathermap.org/data/2.5/forecast?lat=49.52&lon=8.39")!
         let request = NSURLRequest(URL: url)
-        let config =  NSURLSessionConfiguration.defaultSessionConfiguration()
-        
+        let config = NSURLSessionConfiguration.defaultSessionConfiguration()
         
         let session = NSURLSession(configuration: config)
         session.dataTaskWithRequest(request, completionHandler: {
             (data, response, error) -> Void in
             
             if error != nil {
-                println(error)
+                println("fetchGanzerTag error \(error)")
                 return
             }
-            var errorPointer:NSError?
+            var errorPointer: NSError?
             let readingOptions = NSJSONReadingOptions.AllowFragments
-            let parsedJSON:AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: readingOptions, error: &errorPointer)
+            let parsedJSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: readingOptions, error: &errorPointer)
+            //println("fetchGanzerTag \(parsedJSON)")
             
-            if let openWeatherDict = parsedJSON as? NSDictionary{
-                println(openWeatherDict)
-                let cityName = openWeatherDict["name"] as? String ?? "Keine Stadt gefunden"
-                let dieBase = openWeatherDict["base"] as? String ?? ""
-                let komischesDt = openWeatherDict["dt"] as? Double ?? 0.0
-                let komischesId = openWeatherDict["id"] as? Double ?? 0.0
+            if let openWeatherDailyDict = parsedJSON as? NSDictionary{
                 
-                println(dieBase)
-                println(komischesDt)
-                println(komischesId)
                 
-                if let mainDict = openWeatherDict["main"] as? NSDictionary{
-                    println(mainDict)
-                    let humidity = mainDict["humidity"] as? Double ?? 0.0
-                    let pressure = mainDict["pressure"] as? Double ?? 0.0
-                    let tempMax = mainDict["temp_max"] as? Double ?? 0.0
-                    let tempMin = mainDict["temp_min"] as? Double ?? 0.0
-                    let temp = mainDict["temp"] as? Double ?? 0.0
-                    println(temp)
-                    println(pressure)
-                    println(humidity)
-                    println(tempMax)
-                    println(tempMin)
-                    
-                    if let sysDict = openWeatherDict["sys"] as? NSDictionary{
-                        println(sysDict)
-                        let country = sysDict["country"] as? String ?? ""
-                        let sunrise = sysDict["sunrise"] as? Double ?? 0.0
-                        let sunset = sysDict["sunset"] as? Double ?? 0.0
-                        println("Land: \(country)")
-                        println("sunrise: \(sunrise)")
-                        println("sunset: \(sunset)")
+                if let listArray = openWeatherDailyDict["list"] as? NSArray{
+                    println(listArray)
+                    println(listArray.count)
+                    var tmpArray:[WeatherForecast]=[]
+                    for tmpItem in listArray{
                         
-                        
-                        if let weatherArray = openWeatherDict["weather"] as? NSArray {
-                            if let weatherDict = weatherArray[0] as? NSDictionary{
-                                let description = weatherDict["description"] as? String ?? ""
-                                let main = weatherDict["main"] as? String ?? ""
-                                
-                                println(weatherDict)
-                                println(description)
-                                println(main)
-                                
-                                self.weather =  Weather(city: cityName, country: country, sunrise: sunrise, sunset: sunset, humidity: humidity, pressure: pressure, status: description, tempMax: tempMax, tempMin: tempMin, temp: temp)
-                                
-                                dispatch_async(dispatch_get_main_queue(), {
-                                    if let city = self.weather?.city {
-                                        self.lblStadt.text = city
-                                    }
-                                    
-                                    if let temp = self.weather?.temp{
-                                        self.lblGrad.text = "\(temp)°"
-                                    }
-                                    
-                                    if let humidity = self.weather?.humidity {
-                                        self.lblHumidity.text = "\(humidity)"
-                                    }
-                                    
-                                    if let pressure = self.weather?.pressure{
-                                        self.lblPressure.text = "\(pressure)"
-                                    }
-                                    
-                                    if let status = self.weather?.status{
-                                        self.lblSunny.text = status
-                                    }
-                                    
-                                });
+                        var tempRain:Double?
+                        var tempSnow:Double?
+                        var tempTemp:Double?
+                        var tempDescription:String?
+                        var tempDt:String?
+
+                        if let item = tmpItem as? NSDictionary{
+                            println("item: \(item)")
+                            if let rainDict = item["rain"] as? NSDictionary{
+                                println(rainDict)
+                                let rainthreehours = rainDict["3h"] as? Double ?? 0.0
+                                println(rainthreehours)
+                                tempRain = rainthreehours
+                            }                           /*
+                            if let rainDict = openWeatherDailyDict["rain"] as? NSDictionary{
+                                println(rainDict)
+                                let rainthreehours = rainDict["3h"] as? Double ?? 0.0
+                                println(rainthreehours)
+                            }*/
                             
+                            if let snowDict = item["snow"] as? NSDictionary{
+                                println(snowDict)
+                                let snowthreehours = snowDict["3h"] as? Double ?? 0.0
+                                println(snowthreehours)
+                                tempSnow = snowthreehours
+                            }
+                            
+                            if let mainDict = item["main"] as? NSDictionary{
+                                println(mainDict)
+                                let temp = mainDict["temp"] as? Double ?? 0.0
+                                println(temp)
+                                tempTemp = temp
                                 
                                 
                             }
+                            if let weatherArray = item["weather"] as? NSArray {
+                                if let weatherDict = weatherArray[0] as? NSDictionary{
+                                    println(weatherDict)
+                                    let icon = weatherDict["description"] as? String ?? ""
+                                    println(icon)
+                                    tempDescription = icon
+                                }
+                            
+                            }
+                            if let dt = item["dt"] as? String ?? "0"{
+                                tempDt = dt
+                            }
+                            let weatherForecast = WeatherForecast(dt:tempDt!,rainThreeHours: tempRain, snowThreeHours: tempSnow, temp: tempTemp, descriptionIcon: tempDescription)
+                            tmpArray.append(weatherForecast)
                         }
-                        
                     }
+                    println(tmpArray.count)
+                    let weatherForecastDataSource = WeahterForecastDataSource(weather: tmpArray)
+                    /*
+                    let humidity = mainDict["humidity"] as? Double ?? 0.0
+                    
+                    let temp = mainDict["temp"] as? Double ?? 0.0
+                    println(humidity)
+                    println(temp)
+                    
+                    */
                 }
                 
             }
-            
-            
-            
         }).resume()
-        
-        /*
-        
-        {"coord":{"lon":8.65,"lat":49.87},"sys":{"type":3,"id":174267,"message":0.1942,"country":"DE","sunrise":1422342286,"sunset":1422375095},"weather":[{"id":802,"main":"Clouds","description":"scattered clouds","icon":"03d"}],"base":"cmc stations","main":{"temp":274.62,"humidity":90,"pressure":1020.791,"temp_min":274.05,"temp_max":276.05},"wind":{"speed":4.62,"deg":285},"rain":{"3h":0},"snow":{"3h":0},"clouds":{"all":36},"dt":1422345603,"id":2938913,"name":"Darmstadt","cod":200}
-        
-        
-        */
     }
+    
+            
+            
+            func fetchDataFromOpenWeather(){
+                //http://api.openweathermap.org/data/2.5/weather?q=darmstadt
+                let url = NSURL(string: "http://api.openweathermap.org/data/2.5/weather?q=darmstadt")!
+                let request = NSURLRequest(URL: url)
+                let config =  NSURLSessionConfiguration.defaultSessionConfiguration()
+                
+ 
+                
+                let session = NSURLSession(configuration: config)
+                session.dataTaskWithRequest(request, completionHandler: {
+                    (data, response, error) -> Void in
+                    if error != nil {
+                        println(error)
+                        return
+                    }
+                    var errorPointer:NSError?
+                    let readingOptions = NSJSONReadingOptions.AllowFragments
+                    let parsedJSON:AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: readingOptions, error: &errorPointer)
+                    
+                    if let openWeatherDict = parsedJSON as? NSDictionary{
+                        println(openWeatherDict)
+                        let cityName = openWeatherDict["name"] as? String ?? "Keine Stadt gefunden"
+                        let dieBase = openWeatherDict["base"] as? String ?? ""
+                        let komischesDt = openWeatherDict["dt"] as? Double ?? 0.0
+                        let komischesId = openWeatherDict["id"] as? Double ?? 0.0
+                        
+                        println(dieBase)
+                        println(komischesDt)
+                        println(komischesId)
+                        
+                        if let mainDict = openWeatherDict["main"] as? NSDictionary{
+                            println(mainDict)
+                            let humidity = mainDict["humidity"] as? Double ?? 0.0
+                            let pressure = mainDict["pressure"] as? Double ?? 0.0
+                            let tempMax = mainDict["temp_max"] as? Double ?? 0.0
+                            let tempMin = mainDict["temp_min"] as? Double ?? 0.0
+                            let temp = mainDict["temp"] as? Double ?? 0.0
+                            println(temp)
+                            println(pressure)
+                            println(humidity)
+                            println(tempMax)
+                            println(tempMin)
+                            
+                            if let sysDict = openWeatherDict["sys"] as? NSDictionary{
+                                println(sysDict)
+                                let country = sysDict["country"] as? String ?? ""
+                                let sunrise = sysDict["sunrise"] as? Double ?? 0.0
+                                let sunset = sysDict["sunset"] as? Double ?? 0.0
+                                println("Land: \(country)")
+                                println("sunrise: \(sunrise)")
+                                println("sunset: \(sunset)")
+                                
+                                
+                                if let weatherArray = openWeatherDict["weather"] as? NSArray {
+                                    if let weatherDict = weatherArray[0] as? NSDictionary{
+                                        let description = weatherDict["description"] as? String ?? ""
+                                        let main = weatherDict["main"] as? String ?? ""
+                                        
+                                        println(weatherDict)
+                                        println(description)
+                                        println(main)
+                                        
+                                        self.weather =  Weather(city: cityName, country: country, sunrise: sunrise, sunset: sunset, humidity: humidity, pressure: pressure, status: description, tempMax: tempMax, tempMin: tempMin, temp: temp)
+                                        
+                                        dispatch_async(dispatch_get_main_queue(), {
+                                            if let city = self.weather?.city {
+                                                self.lblStadt.text = city
+                                            }
+                                            
+                                            if let temp = self.weather?.temp{
+                                                self.lblGrad.text = "\(temp)°"
+                                            }
+                                            
+                                            if let humidity = self.weather?.humidity {
+                                                self.lblHumidity.text = "\(humidity)"
+                                            }
+                                            
+                                            if let pressure = self.weather?.pressure{
+                                                self.lblPressure.text = "\(pressure)"
+                                            }
+                                            
+                                            if let status = self.weather?.status{
+                                                self.lblSunny.text = status
+                                            }
+                                            self.actGrad.hidden = true;
+
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }).resume()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        actGrad.hidden = false;
         // Do any additional setup after loading the view, typically from a nib.
         viewRedHelper.backgroundColor = UIColor.whiteColor()
-        fetchDataFromOpenweather()
+        //fetchDataFromOpenweather()
+        fetchGanzerTag()
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+        
+        
     }
-    
-    
 }
+
+
 
