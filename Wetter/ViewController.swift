@@ -8,9 +8,10 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+     
     var weather: Weather?
-    
+    var weatherForecastDataSource: WeahterForecastDataSource?
     @IBOutlet weak var viewRedHelper: UIView!
     @IBOutlet weak var btnReload: UIButton!
     @IBOutlet weak var lblGrad: UILabel!
@@ -20,8 +21,10 @@ class ViewController: UIViewController {
     @IBOutlet weak var lblPressure: UILabel!
     @IBOutlet weak var btnVorschau: UIButton!
     
+    @IBOutlet weak var dailyTableView: UITableView!
     
     @IBOutlet weak var actGrad: UIActivityIndicatorView!
+    
     @IBAction func vorschauAction (sender: UIButton){
         println("Vorschau wurde gedrückt")
         fetchGanzerTag()
@@ -67,7 +70,7 @@ class ViewController: UIViewController {
                         var tempSnow:Double?
                         var tempTemp:Double?
                         var tempDescription:String?
-                        var tempDt:String?
+                        var tempDt:Int?
                         
                         if let item = tmpItem as? NSDictionary{
                             println("item: \(item)")
@@ -107,7 +110,7 @@ class ViewController: UIViewController {
                                 }
                                 
                             }
-                            if let dt = item["dt"] as? String ?? "0"{
+                            if let dt = item["dt"] as? Int ?? 0 {
                                 tempDt = dt
                             }
                             let weatherForecast = WeatherForecast(dt:tempDt!,rainThreeHours: tempRain, snowThreeHours: tempSnow, temp: tempTemp, descriptionIcon: tempDescription)
@@ -115,7 +118,10 @@ class ViewController: UIViewController {
                         }
                     }
                     println(tmpArray.count)
-                    let weatherForecastDataSource = WeahterForecastDataSource(weather: tmpArray)
+                    self.weatherForecastDataSource = WeahterForecastDataSource(weather: tmpArray)
+                    dispatch_async(dispatch_get_main_queue(), {
+                        self.dailyTableView.reloadData()
+                    })
                     /*
                     let humidity = mainDict["humidity"] as? Double ?? 0.0
                     
@@ -202,7 +208,8 @@ class ViewController: UIViewController {
                                     }
                                     
                                     if let temp = self.weather?.temp{
-                                        self.lblGrad.text = "\(temp)°"
+                                        self.lblGrad.text = String(format: "%.1f °", temp)
+
                                     }
                                     
                                     if let humidity = self.weather?.humidity {
@@ -239,10 +246,39 @@ class ViewController: UIViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-        
+       
+   
         
     }
-}
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        var count = weatherForecastDataSource?.ganzesWetter.count ?? 0
+//        if count > 5 {
+//            count = 5
+//        }
+        return count;
+    }
+    
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
+        let cell = tableView.dequeueReusableCellWithIdentifier("weatherForecastCellID") as DailyWeatherTableViewCell
+        let weatherData = weatherForecastDataSource?.ganzesWetter
+        if let weatherForecast:WeatherForecast = weatherData?[indexPath.row] {
+            cell.lblGrad.text = String(format: "%.1f °C", weatherForecast.temp)
+            cell.lblRain.text = "\(weatherForecast.rainThreeHours)h"
+            cell.lblSnow.text = "\(weatherForecast.snowThreeHours)h"
+            
+            var dateFormatter: NSDateFormatter = NSDateFormatter()
+            dateFormatter.dateFormat = "HH:00"
+            dateFormatter.timeZone = NSTimeZone(abbreviation: "UTC")
+            
+            let formattedDate = dateFormatter.stringFromDate(weatherForecast.date)
+            cell.lblUhr.text = formattedDate
+        }
+ 
+        return cell
+    }
 
+}
 
 

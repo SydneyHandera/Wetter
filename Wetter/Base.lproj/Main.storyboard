@@ -120,7 +120,7 @@
                                     <constraint firstAttribute="height" constant="339" id="dVp-Cg-DuH"/>
                                 </constraints>
                                 <prototypes>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="60" id="zq1-Ww-Rue">
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="weatherForecastCellID" rowHeight="60" id="zq1-Ww-Rue" customClass="DailyWeatherTableViewCell" customModule="Wetter" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="zq1-Ww-Rue" id="oLu-u9-GAj">
@@ -189,6 +189,13 @@
                                                 <constraint firstItem="yaS-zs-PPq" firstAttribute="trailing" secondItem="f9R-Sm-tRY" secondAttribute="trailing" id="sY7-K5-5zp"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="imgSunny" destination="SqT-2b-K1L" id="NGs-e6-hXP"/>
+                                            <outlet property="lblGrad" destination="3zG-jK-f2j" id="UPJ-rc-5Gd"/>
+                                            <outlet property="lblRain" destination="yaS-zs-PPq" id="RSp-n6-Yv9"/>
+                                            <outlet property="lblSnow" destination="f9R-Sm-tRY" id="BQ1-wo-cmU"/>
+                                            <outlet property="lblUhr" destination="qN1-Jr-m2L" id="mCr-ae-XQv"/>
+                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                                 <variation key="default">
@@ -196,6 +203,10 @@
                                         <exclude reference="dVp-Cg-DuH"/>
                                     </mask>
                                 </variation>
+                                <connections>
+                                    <outlet property="dataSource" destination="vXZ-lx-hvc" id="RU9-f2-QT2"/>
+                                    <outlet property="delegate" destination="vXZ-lx-hvc" id="a0b-iL-2Q8"/>
+                                </connections>
                             </tableView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -226,6 +237,7 @@
                         <outlet property="actGrad" destination="aD4-mO-EYz" id="aBe-o5-lhb"/>
                         <outlet property="btnReload" destination="o4G-7D-kKd" id="8J8-hN-J6o"/>
                         <outlet property="btnVorschau" destination="LTY-rh-l9M" id="Td6-gB-7Bk"/>
+                        <outlet property="dailyTableView" destination="g9I-7b-Yhk" id="k4x-Ni-pvM"/>
                         <outlet property="lblGrad" destination="uAK-Vr-sgz" id="waV-ta-oBw"/>
                         <outlet property="lblHumidity" destination="a4F-Am-TaR" id="2Xz-SE-uhS"/>
                         <outlet property="lblPressure" destination="Lck-pf-x59" id="mhN-4G-WN6"/>
